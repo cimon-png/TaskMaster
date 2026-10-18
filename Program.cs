@@ -116,7 +116,36 @@ static class PriorityMenu
     public static void Run(List<TaskItem> tasks, Action<List<TaskItem>> save)
     {
         Console.Clear();
-        Console.WriteLine("Настройка приоритетов и сроков будет добавлена в отдельной ветви проекта.");
+        Console.WriteLine("Приоритеты и сроки задач");
+        TaskMenu.Show(tasks);
+        if (tasks.Count == 0) { TaskMenu.Pause(); return; }
+        Console.Write("Номер задачи для изменения (0 — назад): ");
+        if (!int.TryParse(Console.ReadLine(), out var number) || number < 1 || number > tasks.Count)
+        {
+            TaskMenu.Pause();
+            return;
+        }
+
+        var task = tasks[number - 1];
+        Console.WriteLine("Приоритет: 1 — низкий, 2 — средний, 3 — высокий");
+        Console.Write("Выберите приоритет: ");
+        task.Priority = Console.ReadLine() switch
+        {
+            "1" => "Низкий",
+            "3" => "Высокий",
+            _ => "Средний"
+        };
+        Console.Write("Срок выполнения (дд.мм.гггг, Enter — без изменений): ");
+        var dateText = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(dateText))
+        {
+            if (DateTime.TryParseExact(dateText, "dd.MM.yyyy", null, System.Globalization.DateTimeStyles.None, out var dueDate))
+                task.DueDate = dueDate;
+            else
+                Console.WriteLine("Дата введена неверно; сохранён прежний срок.");
+        }
+        save(tasks);
+        Console.WriteLine("Приоритет и срок сохранены.");
         TaskMenu.Pause();
     }
 }
