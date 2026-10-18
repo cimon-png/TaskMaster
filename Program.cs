@@ -155,7 +155,28 @@ static class SearchMenu
     public static void Run(List<TaskItem> tasks)
     {
         Console.Clear();
-        Console.WriteLine("Поиск и фильтрация будут добавлены в отдельной ветви проекта.");
+        Console.WriteLine("Поиск и фильтрация задач");
+        Console.Write("Фрагмент названия или описания (Enter — любой текст): ");
+        var query = Console.ReadLine()?.Trim() ?? "";
+        Console.WriteLine("Статус: 0 — любой, 1 — новая, 2 — выполнена");
+        Console.Write("Выберите статус: ");
+        var statusChoice = Console.ReadLine();
+        Console.WriteLine("Приоритет: 0 — любой, 1 — низкий, 2 — средний, 3 — высокий");
+        Console.Write("Выберите приоритет: ");
+        var priorityChoice = Console.ReadLine();
+
+        IEnumerable<TaskItem> results = tasks;
+        if (!string.IsNullOrWhiteSpace(query))
+            results = results.Where(task => task.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase)
+                || task.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase));
+        if (statusChoice == "1") results = results.Where(task => task.Status == "Новая");
+        if (statusChoice == "2") results = results.Where(task => task.Status == "Выполнена");
+        var priority = priorityChoice switch { "1" => "Низкий", "2" => "Средний", "3" => "Высокий", _ => null };
+        if (priority is not null) results = results.Where(task => task.Priority == priority);
+
+        var found = results.ToList();
+        Console.WriteLine($"\nНайдено задач: {found.Count}");
+        TaskMenu.Show(found);
         TaskMenu.Pause();
     }
 }
