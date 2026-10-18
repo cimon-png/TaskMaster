@@ -74,7 +74,9 @@ static class TaskMenu
                 var title = Console.ReadLine()?.Trim();
                 if (!string.IsNullOrWhiteSpace(title))
                 {
-                    tasks.Add(new TaskItem { Title = title, CreatedAt = DateTime.Now, Status = "Новая", Priority = "Средний" });
+                    Console.Write("Описание (необязательно): ");
+                    var description = Console.ReadLine()?.Trim() ?? "";
+                    tasks.Add(new TaskItem { Title = title, Description = description, CreatedAt = DateTime.Now, Status = "Новая", Priority = "Средний" });
                     save(tasks);
                     Console.WriteLine("Задача добавлена.");
                 }
@@ -100,7 +102,10 @@ static class TaskMenu
     {
         if (tasks.Count == 0) { Console.WriteLine("Список задач пуст."); return; }
         for (var i = 0; i < tasks.Count; i++)
+        {
             Console.WriteLine($"{i + 1}. [{tasks[i].Status}] {tasks[i].Title} — приоритет: {tasks[i].Priority}; срок: {tasks[i].DueDate?.ToString("dd.MM.yyyy") ?? "не задан"}");
+            if (!string.IsNullOrWhiteSpace(tasks[i].Description)) Console.WriteLine($"   {tasks[i].Description}");
+        }
     }
 
     internal static void Pause() { Console.WriteLine("\nНажмите Enter, чтобы продолжить..."); Console.ReadLine(); }
@@ -130,6 +135,7 @@ sealed class TaskItem
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = "";
+    public string Description { get; set; } = "";
     public DateTime CreatedAt { get; set; }
     public DateTime? DueDate { get; set; }
     public string Status { get; set; } = "Новая";
